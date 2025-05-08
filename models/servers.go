@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Server struct {
 	gorm.Model
-	name     string
-	ip       string
-	location string
+	Name     string
+	Ip       string
+	Location string
 }
