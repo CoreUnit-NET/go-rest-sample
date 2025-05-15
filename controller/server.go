@@ -12,20 +12,30 @@ type Server struct {
 	Name     string `json:"name"`
 	Ip       string `json:"ip"`
 	Location string `json:"location"`
+  SSHPort int  `json:"sshPort"`
+  HostName string `json:"hostName"`
+  Owner string `json:"owner"` 
+
 }
 type ServerCreate struct {
 	Name     string `json:"name"`
 	Ip       string `json:"ip"`
 	Location string `json:"location"`
+  SSHPort int `json:"sshPort"`
+  HostName string `json:"hostName"`
+  Owner string `json:"owner"`
 }
 
 type ServerUpdate struct {
 	Name     *string `json:"name"`
 	Ip       *string `json:"ip"`
 	Location *string `json:"location"`
+  SSHPort *int `json:"sshPort"`
+  HostName *string `json:"hostName"`
+  Owner *string `json:"owner"`
 }
 type ServerService interface {
-	GetServer(id string) (Server, error)
+  GetServer(id string) (Server, error)
 	GetAllServer() ([]Server, error)
 	UpdateServer(id string, input ServerUpdate) (Server, error)
 	DeleteServer(id string) (any, error)
@@ -49,7 +59,8 @@ func (s *PersistentServerService) GetServer(id string) (Server, error) {
 		return Server{}, serverInstance.Error
 	}
 
-	return Server{ID: serverModel.ID, Name: serverModel.Name, Ip: serverModel.Ip, Location: serverModel.Location}, nil
+  return Server{ID: serverModel.ID, Name: serverModel.Name, Ip: serverModel.Ip, Location: serverModel.Location, SSHPort: serverModel.SSHPort, HostName: serverModel.HostName, Owner: serverModel.Owner}, nil
+
 
 }
 
@@ -63,15 +74,16 @@ func (s *PersistentServerService) GetAllServer() ([]Server, error) {
 	}
 
 	for _, server := range servers {
-		results = append(results, Server{ID: server.ID, Name: server.Name, Ip: server.Ip, Location: server.Location})
+    results = append(results, Server{ID: server.ID, Name: server.Name, Ip: server.Ip, Location: server.Location, SSHPort: server.SSHPort, HostName: server.HostName, Owner: server.Owner})
 	}
+
 	return results, nil
 }
 
 func (s *PersistentServerService) CreateServer(input ServerCreate) (Server, error) {
 	instance := models.Server{Name: input.Name, Location: input.Location, Ip: input.Ip}
 	s.db.Create(&instance)
-	return Server{ID: instance.ID, Name: instance.Name, Location: instance.Location, Ip: instance.Ip}, nil
+  return Server{ID: instance.ID, Name: instance.Name, Location: instance.Location, Ip: instance.Ip, SSHPort: instance.SSHPort, HostName: instance.HostName, Owner: instance.Owner}, nil
 
 }
 
@@ -92,8 +104,18 @@ func (s *PersistentServerService) UpdateServer(id string, input ServerUpdate) (S
 	if input.Location != nil {
 		serverModel.Location = *input.Location
 	}
+  if input.SSHPort != nil {
+    serverModel.SSHPort = *input.SSHPort
+  }
+  if input.HostName != nil {
+    serverModel.HostName = *input.HostName
+  }
+  if input.Owner != nil {
+    serverModel.Owner = *input.Owner
+  }
+
 	s.db.Save(&serverModel)
-	return Server{ID: serverModel.ID, Name: serverModel.Name, Location: serverModel.Location, Ip: serverModel.Ip}, nil
+  return Server{ID: serverModel.ID, Name: serverModel.Name, Location: serverModel.Location, Ip: serverModel.Ip, SSHPort: serverModel.SSHPort, HostName: serverModel.HostName, Owner: serverModel.Owner}, nil
 
 }
 func (s *PersistentServerService) DeleteServer(id string) (any, error) {
